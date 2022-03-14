@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<script type="text/javascript">
+	// 定义气球类
+	function Balloon(img) {
+		// 定义携带的字符
+		this.arr = "abcdefghijklmnopqrstuvwxyz".split("");
+		// 定义索引
+		this.index = parseInt(Math.random() * this.arr.length);
+		// 定义随机字符
+		this.str = this.arr[this.index];
+		// 元素属性
+		this.dom = document.createElement("div");
+		// 图片属性
+		this.img = img;
+		// 图片的宽
+		this.width = this.img.width / 4;
+		// 图片的高
+		this.height = this.img.height / 3;
+		// 图片的背景定位X
+		this.positionX = parseInt(Math.random() * 4);
+		// 图片的背景定位Y
+		this.positionY = parseInt(Math.random() * 3);
+		// 设置样式
+		this.setStyle = function() {
+			// 设置元素定位
+			this.dom.style.position = "absolute";
+			this.dom.style.left = 0;
+			// 设置元素的内部文本
+			this.dom.innerHTML = this.str;
+			// 设置文本样式
+			this.dom.style.lineHeight = this.height * 2 / 3+ "px";
+			this.dom.style.textAlign = "center";
+			this.dom.style.fontSize = "20px";
+			this.dom.style.fontWeight = "bold";
+			this.dom.style.top = parseInt(Math.random() * (document.documentElement.clientHeight - this.height)) + "px";
+			// 设置元素的宽度和高度
+			this.dom.style.width = this.width + "px";
+			this.dom.style.height = this.height + "px";
+			// 设置元素背景图片
+			this.dom.style.backgroundImage = "url(" + this.img.src + ")";
+			// 设置元素的背景定位
+			this.dom.style.backgroundPositionX = -this.width * this.positionX + "px";
+			this.dom.style.backgroundPositionY = -this.height * this.positionY + "px";
+		}
+		// 上树方法
+		this.upTree = function() {
+			document.body.appendChild(this.dom);
+		}
+		// 检测气球是否到达边界
+		this.check = function() {
+			// 判断定位left值值是否到达别界
+			if (this.dom.offsetLeft >= document.documentElement.clientWidth - this.width) {
+				// 设置定位值
+				this.dom.style.left = document.documentElement.clientWidth - this.width + "px";
+				return true;
+			}
+			return false;
+		}
+		// 下树方法
+		this.boom = function() {
+			this.dom.parentNode.removeChild(this.dom);
+		}
+		// 移动方法
+		this.move = function() {
+			this.dom.style.left = this.dom.offsetLeft + 5 + "px";
+		}
+		// 定义初始化方法
+		this.init = function() {
+			this.setStyle();
+			this.upTree();
+		}
+		// 执行init
+		this.init();
+	}
+
+	// 创建图片元素
+	var img = document.createElement("img");
+	// 设置路径
+	img.src = "images/balloon.jpg";
+
+	// 定义数组
+	var arr = [];
+	// 定义定时器
+	var timer = null;
+	// 定义一个信号量
+	var count = 0;
+	// 添加事件
+	img.onload = function() {
+		// 初始化气球对象
+		var balloon = new Balloon(img);
+		// 第一个气球也要放入数组中
+		arr.push(balloon);
+		// 赋值定时器
+		timer = setInterval(function() {
+			// 信号量++
+			count++;
+			// 判断信号量
+			if (count % 70 === 0) {
+				// 气球每移动70次， 创建一个气球
+				arr.push(new Balloon(img));
+			}
+			// 循环数组
+			for (var i = 0; i < arr.length; i++) {
+				// 调用move方法
+				arr[i].move();
+				// 调用check方法
+				var result = arr[i].check();
+				// 判断是否到达别界
+				if (result) {
+					// 说明气球到达边界了
+					// 将气球从数组中移除
+					arr.splice(i, 1);
+					// 防止数组塌陷
+					i--;
+          // 清除并接触边界进行弹窗
+          // clearInterval(this.timer)
+          // alert('游戏结束')
+				}
+			}
+		}, 20)
+	}
+
+
+	// 给document绑定键盘事件
+	document.onkeydown = function(e) {
+		// 获取用户按下的字符
+		var key = e.key;
+		// 拿着这个key与数组中每一个气球对象的str属性值作比对，如果比对上了，就让气球从数组中移除并且从dom中移除
+		
+		for (var i = 0; i < arr.length; i++) {
+			// 判断
+			if (key.toLowerCase() === arr[i].str.toLowerCase()) {
+				// 调用boom方法
+				arr[i].boom();
+				// 移除当前项
+				arr.splice(i, 1);
+				break;
+			}
+		}
+	}
+	</script>
+</body>
+</html>
